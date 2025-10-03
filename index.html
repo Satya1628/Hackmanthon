@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capital View</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --card-bg: rgba(255, 255, 255, 0.65);
+            --text-dark: #1a253c;
+            --text-light: #5a647a;
+            --accent-blue: #007bff;
+            --accent-green: #2a9d8f;
+            --accent-red: #e76f51;
+            --accent-yellow: #f4a261;
+            --border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        #auth-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            min-height: calc(100vh - 40px);
+        }
+
+        .auth-form-wrapper {
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .branding {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+        .branding h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .branding .quote {
+            font-style: italic;
+            font-weight: 300;
+            max-width: 350px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 0 auto;
+            font-size: 1.1rem;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .auth-error {
+            color: var(--accent-red);
+            text-align: center;
+            font-weight: 500;
+            min-height: 1.2em;
+        }
+        .auth-switch {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .auth-switch a {
+            color: var(--accent-blue);
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 0;
+            flex-grow: 1;
+            text-align: center;
+        }
+        
+        #logout-btn {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--accent-blue);
+            background-color: #fff;
+            border: 1px solid var(--accent-blue);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        #logout-btn:hover {
+            background-color: var(--accent-blue);
+            color: #fff;
+        }
+        
+        nav {
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 12px;
+            margin-bottom: 25px;
+            padding: 5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        nav ul {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        nav a {
+            display: block;
+            padding: 10px 25px;
+            margin: 5px;
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+            color: var(--text-dark);
+        }
+        nav a.active {
+            background-color: var(--accent-blue);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.4);
+        }
+
+        h2, h3 {
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            padding: 25px;
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 25px;
+        }
+        
+        .auth-form input, #entry-form input, #entry-form select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: #f8f9fa;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            box-sizing: border-box;
+        }
+
+        .auth-form input:focus, #entry-form input:focus, #entry-form select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+        }
+
+        .auth-form button, #entry-form button {
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #fff;
+            background-color: var(--accent-blue);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .auth-form button:hover, #entry-form button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+        
+        #category-chart-wrapper {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        #category-chart-container {
+            position: relative;
+            height: 300px;
+            width: 300px;
+            min-width: 250px;
+            margin-right: 20px;
+        }
+        #category-chart-legend {
+            list-style: none; padding: 0; margin: 0; text-align: left;
+        }
+        #category-chart-legend li {
+            margin-bottom: 5px; font-size: 0.9em; display: flex; align-items: center;
+        }
+        #category-chart-legend span {
+            display: inline-block; width: 15px; height: 15px; border-radius: 50%; margin-right: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .chart-controls {
+            display: flex; gap: 10px; margin-bottom: 15px;
+        }
+        .chart-controls button {
+            padding: 8px 15px; border-radius: 8px; border: 1px solid var(--accent-blue);
+            background-color: #fff; color: var(--accent-blue); cursor: pointer;
+            transition: all 0.3s ease; font-weight: 500;
+        }
+        .chart-controls button.active {
+            background-color: var(--accent-blue); color: #fff;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.4);
+        }
+
+        .summary-grid .card p {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 10px 0 0;
+        }
+
+        #total-income { color: #28a745; }
+        #total-expense { color: var(--accent-red); }
+        #net-savings { color: #17a2b8; }
+        
+        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .filter-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .filter-controls input, .filter-controls select, .filter-controls button {
+            padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; background-color: #fff;
+        }
+
+        table {
+            width: 100%; border-collapse: collapse; background-color: transparent;
+        }
+
+        th, td {
+            text-align: left; padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        thead th {
+            font-weight: 500; color: var(--text-dark);
+        }
+        
+        tbody tr { transition: background-color 0.2s; }
+        tbody tr:hover { background-color: rgba(255,255,255,0.2); }
+        .expense { color: var(--accent-red); font-weight: 500; }
+        .income { color: var(--accent-green); font-weight: 500; }
+        
+        .action-btn {
+            border: none; padding: 6px 12px; font-size: 12px; color: white; border-radius: 6px;
+            cursor: pointer; transition: opacity 0.3s, transform 0.2s;
+        }
+        .action-btn:hover {
+            opacity: 0.85; transform: translateY(-1px);
+        }
+
+        .edit-btn { background-color: var(--accent-yellow); color: #fff; margin-right: 5px; }
+        .delete-btn { background-color: var(--accent-red); }
+
+        @media (max-width: 1200px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            #category-chart-wrapper {
+                flex-direction: column;
+            }
+            #category-chart-container {
+                margin-right: 0; margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="auth-section" class="container">
+    <div class="branding">
+        <h1 id="auth-branding-title">Capital View</h1>
+        <p class="quote" id="auth-branding-quote">"Beware of little expenses. A small leak will sink a great ship."</p>
+    </div>
+    <div id="login-container" class="auth-form-wrapper">
+        <div class="card">
+            <h2>Login</h2>
+            <form id="login-form" class="auth-form">
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+                <p id="login-error" class="auth-error"></p>
+            </form>
+            <p class="auth-switch">Don't have an account? <a id="show-register">Register here</a></p>
+        </div>
+    </div>
+    <div id="register-container" class="auth-form-wrapper hidden">
+        <div class="card">
+            <h2>Register</h2>
+            <form id="register-form" class="auth-form">
+                <input type="text" id="register-username" placeholder="Choose a Username" required>
+                <input type="password" id="register-password" placeholder="Choose a Password" required>
+                <button type="submit">Register</button>
+                <p id="register-error" class="auth-error"></p>
+            </form>
+            <p class="auth-switch">Already have an account? <a id="show-login">Login here</a></p>
+        </div>
+    </div>
+</div>
+
+<div id="app-container" class="container hidden">
+    <header>
+        <div style="width: 85px;"></div> 
+        <h1>Capital View</h1>
+        <button id="logout-btn">Logout</button>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#" id="nav-dashboard" class="active">Dashboard</a></li>
+            <li><a href="#" id="nav-transactions">Transactions</a></li>
+            <li><a href="#" id="nav-about">About</a></li>
+        </ul>
+    </nav>
+
+    <div id="dashboard-page">
+        <div class="summary-grid">
+            <div class="card"><h3>Total Income</h3><p id="total-income">₹0.00</p></div>
+            <div class="card"><h3>Total Expense</h3><p id="total-expense">₹0.00</p></div>
+            <div class="card"><h3>Net Flow</h3><p id="net-savings">₹0.00</p></div>
+        </div>
+        <div class="charts-grid">
+             <div class="card">
+                <h3>Expenses by Category</h3>
+                <div id="category-chart-wrapper">
+                    <div id="category-chart-container">
+                        <canvas id="category-chart"></canvas>
+                    </div>
+                    <ul id="category-chart-legend"></ul>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Monthly Expenses</h3>
+                <div class="chart-controls">
+                    <button id="monthly-chart-bar-btn" class="active">Bar</button>
+                    <button id="monthly-chart-line-btn">Line</button>
+                </div>
+                <div style="position: relative; width: 100%; height: 300px;">
+                    <canvas id="monthly-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="transactions-page" class="hidden">
+        <div class="grid-container">
+            <div id="entry-column">
+                <div class="card">
+                    <h2 id="form-title">Add / Edit Transaction</h2>
+                    <form id="entry-form">
+                        <input type="date" id="date" required>
+                        <input type="text" id="description" placeholder="Description" required>
+                        <input type="number" id="amount" placeholder="Amount" min="0" step="0.01" required>
+                        <select id="type" required>
+                            <option value="Expense">Expense</option>
+                            <option value="Income">Income</option>
+                        </select>
+                        <select id="category" required></select>
+                        <button type="submit" id="submit-btn">Add Transaction</button>
+                    </form>
+                </div>
+            </div>
+            <div id="table-column">
+                <div class="card">
+                    <div class="table-header">
+                        <h3>All Transactions</h3>
+                        <button id="export-csv-btn" class="action-btn" style="background-color: var(--accent-green);">Export to CSV</button>
+                    </div>
+                    <div class="filter-controls">
+                        <input type="search" id="search-input" placeholder="Search...">
+                        <select id="month-filter"><option value="all">All Months</option></select>
+                        <select id="category-filter"><option value="all">All Categories</option></select>
+                        <button id="reset-filters-btn">Reset</button>
+                    </div>
+                    <br>
+                    <table id="transactions-table">
+                        <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Type</th><th>Category</th><th>Actions</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="about-page" class="hidden">
+        <div class="card">
+            <h3>About Capital View</h3>
+            <p>Capital View is a lightweight, client-side personal finance tracker designed to help you manage your income and expenses with ease.</p>
+            <p>All your data is stored securely in your own browser's local storage and is never sent to any server.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- AUTH ELEMENTS ---
+        const authSection = document.getElementById('auth-section');
+        const loginContainer = document.getElementById('login-container');
+        const registerContainer = document.getElementById('register-container');
+        const appContainer = document.getElementById('app-container');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const loginError = document.getElementById('login-error');
+        const registerError = document.getElementById('register-error');
+        const logoutBtn = document.getElementById('logout-btn');
+        const showRegisterBtn = document.getElementById('show-register');
+        const showLoginBtn = document.getElementById('show-login');
+        const authBrandingQuote = document.getElementById('auth-branding-quote');
+        
+        // --- APP ELEMENTS (initialized later) ---
+        let entryForm, submitBtn, formTitle, typeSelect, categorySelect, searchInput, monthFilter, categoryFilter, resetFiltersBtn, exportBtn;
+        let navDashboard, navTransactions, navAbout, dashboardPage, transactionsPage, aboutPage, navLinks, pages;
+        let monthlyChartBarBtn, monthlyChartLineBtn;
+
+        let editState = { active: false, id: null };
+        let categoryChart = null;
+        let monthlyChart = null;
+        let currentMonthlyChartType = 'bar';
+
+        // --- FULL 1-YEAR SAMPLE DATA (FOR 'satya' ACCOUNT) ---
+        const sampleTransactions = [
+            { id: 701, date: '2024-11-01', description: 'Monthly Salary', amount: 78000, type: 'Income', category: 'Income' },{ id: 702, date: '2024-11-01', description: 'House Rent', amount: 18000, type: 'Expense', category: 'Rent' },{ id: 703, date: '2024-11-05', description: 'Car Loan EMI', amount: 12000, type: 'Expense', category: 'EMI' },{ id: 704, date: '2024-11-10', description: 'Diwali Shopping - Amazon', amount: 7500, type: 'Expense', category: 'Shopping' },{ id: 705, date: '2024-11-11', description: 'Diwali Gifts', amount: 3000, type: 'Expense', category: 'Gifts & Social' },{ id: 706, date: '2024-11-15', description: 'Mutual Fund SIP', amount: 20000, type: 'Expense', category: 'Investments' },{ id: 801, date: '2024-12-01', description: 'Monthly Salary', amount: 78000, type: 'Income', category: 'Income' },{ id: 802, date: '2024-12-01', description: 'House Rent', amount: 18000, type: 'Expense', category: 'Rent' },{ id: 803, date: '2024-12-05', description: 'Car Loan EMI', amount: 12000, type: 'Expense', category: 'EMI' },{ id: 804, date: '2024-12-10', description: 'Mutual Fund SIP', amount: 20000, type: 'Expense', category: 'Investments' },{ id: 805, date: '2024-12-25', description: 'Christmas Dinner', amount: 2500, type: 'Expense', category: 'Food & Groceries' },{ id: 806, date: '2024-12-31', description: 'New Year Party', amount: 3000, type: 'Expense', category: 'Entertainment' },{ id: 901, date: '2025-01-01', description: 'Monthly Salary + Bonus', amount: 85000, type: 'Income', category: 'Income' },{ id: 902, date: '2025-01-01', description: 'House Rent', amount: 18000, type: 'Expense', category: 'Rent' },{ id: 903, date: '2025-01-05', description: 'Car Loan EMI', amount: 12000, type: 'Expense', category: 'EMI' },{ id: 904, date: '2025-01-10', description: 'Mutual Fund SIP', amount: 22000, type: 'Expense', category: 'Investments' },{ id: 905, date: '2025-01-15', description: 'Flight tickets - Goa', amount: 8000, type: 'Expense', category: 'Transport' },{ id: 1001, date: '2025-02-01', description: 'Monthly Salary', amount: 80000, type: 'Income', category: 'Income' },{ id: 1002, date: '2025-02-01', description: 'House Rent', amount: 18000, type: 'Expense', category: 'Rent' },{ id: 1003, date: '2025-02-05', description: 'Car Loan EMI', amount: 12000, type: 'Expense', category: 'EMI' },{ id: 1004, date: '2025-02-10', description: 'Mutual Fund SIP', amount: 22000, type: 'Expense', category: 'Investments' },{ id: 1005, date: '2025-02-14', description: "Valentine's Day Dinner", amount: 3500, type: 'Expense', category: 'Entertainment' },{ id: 1101, date: '2025-03-01', description: 'Monthly Salary', amount: 80000, type: 'Income', category: 'Income' },{ id: 1102, date: '2025-03-01', description: 'House Rent', amount: 18000, type: 'Expense', category: 'Rent' },{ id: 1103, date: '2025-03-05', description: 'Car Loan EMI', amount: 12000, type: 'Expense', category: 'EMI' },{ id: 1104, date: '2025-03-10', description: 'Mutual Fund SIP', amount: 22000, type: 'Expense', category: 'Investments' },{ id: 1105, date: '2025-03-20', description: 'Life Insurance Premium', amount: 15000, type: 'Expense', category: 'Bills & Utilities' },{ id: 1201, date: '2025-04-01', description: 'Monthly Salary', amount: 80000, type: 'Income', category: 'Income' },{ id: 1202, date: '2025-04-01', description: 'House Rent', amount: 18000, type: 'Expense', category: 'Rent' },{ id: 1203, date: '2025-04-05', description: 'Car Loan EMI', amount: 12000, type: 'Expense', category: 'EMI' },{ id: 1204, date: '2025-04-10', description: 'Mutual Fund SIP', amount: 22000, type: 'Expense', category: 'Investments' },{ id: 1205, date: '2025-04-18', description: 'New Phone - Flipkart', amount: 25000, type: 'Expense', category: 'Shopping' },{ id: 101, date: '2025-05-01', description: 'Monthly Salary', amount: 80000, type: 'Income', category: 'Income' }, { id: 102, date: '2025-05-01', description: 'House Rent', amount: 18000, type: 'Expense', category: 'Rent' }, { id: 103, date: '2025-05-02', description: 'UPI to Pan Shop', amount: 40, type: 'Expense', category: 'Petty Cash' }, { id: 104, date: '2025-05-05', description: 'Car Loan EMI', amount: 12000, type: 'Expense', category: 'EMI' }, { id: 105, date: '2025-05-07', description: 'Groceries from DMart', amount: 4500, type: 'Expense', category: 'Food & Groceries' }, { id: 106, date: '2025-05-09', description: 'Chai at local stall', amount: 20, type: 'Expense', category: 'Petty Cash' }, { id: 107, date: '2025-05-10', description: 'Mutual Fund SIP', amount: 20000, type: 'Expense', category: 'Investments' }, { id: 108, date: '2025-05-12', description: 'Electricity Bill', amount: 1100, type: 'Expense', category: 'Bills & Utilities' }, { id: 109, date: '2025-05-15', description: 'Weekend movie tickets', amount: 750, type: 'Expense', category: 'Entertainment' }, { id: 110, date: '2025-05-18', description: 'Haircut at local salon', amount: 200, type: 'Expense', category: 'Personal Care' }, { id: 111, date: '2025-05-20', description: 'Zomato food order', amount: 550, type: 'Expense', category: 'Food & Groceries' }, { id: 112, date: '2025-05-25', description: 'Fuel for car', amount: 2000, type: 'Expense', category: 'Transport' }, { id: 113, date: '2025-05-28', description: 'Pharmacy - medicine', amount: 350, type: 'Expense', category: 'Health' }, { id: 201, date: '2025-06-01', description: 'Monthly Salary', amount: 80000, type: 'Income', category: 'Income' }, { id: 202, date: '2025-06-01', description: 'House Rent', amount: 18000, type: 'Expense', category: 'Rent' }, { id: 203, date: '2025-06-03', description: 'Samosa and chai', amount: 50, type: 'Expense', category: 'Petty Cash' }, { id: 204, date: '2025-06-05', description: 'Car Loan EMI', amount: 12000, type: 'Expense', category: 'EMI' }, { id: 205, date: '2025-06-08', description: 'Amazon shopping - clothes', amount: 3500, type: 'Expense', category: 'Shopping' }, { id: 206, date: '2025-06-10', description: 'Mutual Fund SIP', amount: 20000, type: 'Expense', category: 'Investments' }, { id: 207, date: '2025-06-11', description: 'Internet Bill', amount: 950, type: 'Expense', category: 'Bills & Utilities' }, { id: 208, date: '2025-06-15', description: 'Paytm for vegetables', amount: 400, type: 'Expense', category: 'Food & Groceries' }, { id: 209, date: '2025-06-18', description: 'Udemy course on Python', amount: 499, type: 'Expense', category: 'Education' }, { id: 210, date: '2025-06-22', description: 'Swiggy dinner', amount: 650, type: 'Expense', category: 'Food & Groceries' }, { id: 211, date: '2025-06-26', description: 'Spotify Premium', amount: 129, type: 'Expense', category: 'Bills & Utilities' }, { id: 212, date: '2025-06-29', description: 'Ola ride', amount: 280, type: 'Expense', category: 'Transport' }, { id: 301, date: '2025-07-01', description: 'Monthly Salary', amount: 80000, type: 'Income', category: 'Income' }, { id: 302, date: '2025-07-01', description: 'House Rent', amount: 18000, type: 'Expense', category: 'Rent' }, { id: 303, date: '2025-07-05', description: 'Car Loan EMI', amount: 12000, type: 'Expense', category: 'EMI' }, { id: 304, date: '2025-07-06', description: 'UPI to panwala', amount: 30, type: 'Expense', category: 'Petty Cash' }, { id: 305, date: '2025-07-09', description: 'Groceries from Blinkit', amount: 5200, type: 'Expense', category: 'Food & Groceries' }, { id: 306, date: '2025-07-10', description: 'Mutual Fund SIP', amount: 20000, type: 'Expense', category: 'Investments' }, { id: 307, date: '2025-07-15', description: 'Netflix Subscription', amount: 649, type: 'Expense', category: 'Bills & Utilities' }, { id: 308, date: '2025-07-19', description: 'Birthday gift for friend', amount: 1500, type: 'Expense', category: 'Gifts & Social' }, { id: 309, date: '2025-07-21', description: 'Uber ride to airport', amount: 850, type: 'Expense', category: 'Transport' }, { id: 310, date: '2025-07-25', description: 'Local kirana store', amount: 300, type: 'Expense', category: 'Food & Groceries' }, { id: 311, date: '2025-07-28', description: 'New headphones from Amazon', amount: 4500, type: 'Expense', category: 'Shopping' }, { id: 401, date: '2025-08-01', description: 'Monthly Salary', amount: 82000, type: 'Income', category: 'Income' }, { id: 402, date: '2025-08-01', description: 'House Rent', amount: 18000, type: 'Expense', category: 'Rent' }, { id: 403, date: '2025-08-05', description: 'Car Loan EMI', amount: 12000, type: 'Expense', category: 'EMI' }, { id: 404, date: '2025-08-08', description: 'Zomato order', amount: 700, type: 'Expense', category: 'Food & Groceries' }, { id: 405, date: '2025-08-10', description: 'Mutual Fund SIP', amount: 25000, type: 'Expense', category: 'Investments' }, { id: 406, date: '2025-08-14', description: 'Mobile Recharge', amount: 719, type: 'Expense', category: 'Bills & Utilities' }, { id: 407, date: '2025-08-19', description: 'Cafe with friends', amount: 1200, type: 'Expense', category: 'Entertainment' }, { id: 408, date: '2025-08-22', description: 'Rakhi Shopping', amount: 2200, type: 'Expense', category: 'Gifts & Social' }, { id: 409, date: '2025-08-25', description: 'Fuel for car', amount: 2500, type: 'Expense', category: 'Transport' }, { id: 410, date: '2025-08-29', description: 'Doctor consultation fee', amount: 500, type: 'Expense', category: 'Health' }, { id: 501, date: '2025-09-01', description: 'Monthly Salary', amount: 80000, type: 'Income', category: 'Income' }, { id: 502, date: '2025-09-01', description: 'House Rent', amount: 18000, type: 'Expense', category: 'Rent' }, { id: 503, date: '2025-09-02', description: 'Chai and sutta', amount: 45, type: 'Expense', category: 'Petty Cash' }, { id: 504, date: '2025-09-05', description: 'Car Loan EMI', amount: 12000, type: 'Expense', category: 'EMI' }, { id: 505, date: '2025-09-07', description: 'Groceries', amount: 4800, type: 'Expense', category: 'Food & Groceries' }, { id: 506, date: '2025-09-10', description: 'Mutual Fund SIP', amount: 25000, type: 'Expense', category: 'Investments' }, { id: 507, date: '2025-09-15', description: 'Pharmacy bill', amount: 450, type: 'Expense', category: 'Health' }, { id: 508, date: '2025-09-16', description: 'Myntra shopping', amount: 3200, type: 'Expense', category: 'Shopping' }, { id: 509, date: '2025-09-22', description: 'Dinner at restaurant', amount: 1800, type: 'Expense', category: 'Food & Groceries' }, { id: 510, date: '2025-09-26', description: 'Metro card recharge', amount: 500, type: 'Expense', category: 'Transport' }, { id: 511, date: '2025-09-29', description: 'Freelance Project Payment', amount: 15000, type: 'Income', category: 'Income' }, { id: 601, date: '2025-10-01', description: 'Monthly Salary', amount: 80000, type: 'Income', category: 'Income' }, { id: 602, date: '2025-10-01', description: 'House Rent', amount: 18000, type: 'Expense', category: 'Rent' }, { id: 603, date: '2025-10-03', description: 'Car Loan EMI', amount: 12000, type: 'Expense', category: 'EMI' }, { id: 604, date: '2025-10-03', description: 'UPI to Pan Shop', amount: 50, type: 'Expense', category: 'Petty Cash' },
+        ];
+        
+        const seedInitialData = () => { if (!localStorage.getItem('credentials_satya')) { localStorage.setItem('credentials_satya', JSON.stringify({ password: '123' })); localStorage.setItem('transactions_satya', JSON.stringify(sampleTransactions)); } };
+        const checkAuth = () => { if (sessionStorage.getItem('loggedInUser')) { authSection.classList.add('hidden'); appContainer.classList.remove('hidden'); document.body.style.alignItems = 'flex-start'; initializeApp(); } else { appContainer.classList.add('hidden'); authSection.classList.remove('hidden'); document.body.style.alignItems = 'center'; loginContainer.classList.remove('hidden'); registerContainer.classList.add('hidden'); } };
+        showRegisterBtn.addEventListener('click', () => { loginContainer.classList.add('hidden'); registerContainer.classList.remove('hidden'); authBrandingQuote.textContent = `"An investment in knowledge pays the best interest."`; });
+        showLoginBtn.addEventListener('click', () => { registerContainer.classList.add('hidden'); loginContainer.classList.remove('hidden'); authBrandingQuote.textContent = `"Beware of little expenses. A small leak will sink a great ship."`; });
+        registerForm.addEventListener('submit', (e) => { e.preventDefault(); const u = document.getElementById('register-username').value, p = document.getElementById('register-password').value; if (localStorage.getItem(`credentials_${u}`)) { registerError.textContent = 'Username already exists.'; return; } localStorage.setItem(`credentials_${u}`, JSON.stringify({ password: p })); alert('Registration successful! Please login.'); showLoginBtn.click(); });
+        loginForm.addEventListener('submit', (e) => { e.preventDefault(); const u = document.getElementById('username').value, p = document.getElementById('password').value; const s = localStorage.getItem(`credentials_${u}`); if (!s) { loginError.textContent = 'Account not found. Please register.'; return; } const c = JSON.parse(s); if (p === c.password) { sessionStorage.setItem('loggedInUser', u); checkAuth(); } else { loginError.textContent = 'Invalid password.'; } });
+        logoutBtn.addEventListener('click', () => { sessionStorage.removeItem('loggedInUser'); window.location.reload(); });
+
+        const initializeApp = () => {
+            entryForm = document.getElementById('entry-form'); submitBtn = document.getElementById('submit-btn'); formTitle = document.getElementById('form-title'); typeSelect = document.getElementById('type'); categorySelect = document.getElementById('category'); searchInput = document.getElementById('search-input'); monthFilter = document.getElementById('month-filter'); categoryFilter = document.getElementById('category-filter'); resetFiltersBtn = document.getElementById('reset-filters-btn'); exportBtn = document.getElementById('export-csv-btn');
+            navDashboard = document.getElementById('nav-dashboard'); navTransactions = document.getElementById('nav-transactions'); navAbout = document.getElementById('nav-about'); dashboardPage = document.getElementById('dashboard-page'); transactionsPage = document.getElementById('transactions-page'); aboutPage = document.getElementById('about-page');
+            monthlyChartBarBtn = document.getElementById('monthly-chart-bar-btn'); monthlyChartLineBtn = document.getElementById('monthly-chart-line-btn');
+            navLinks = [navDashboard, navTransactions, navAbout]; pages = [dashboardPage, transactionsPage, aboutPage];
+            const user = sessionStorage.getItem('loggedInUser'), dataKey = `transactions_${user}`;
+            const DETAILED_CATEGORIES = ['Food & Groceries', 'Transport', 'Shopping', 'Rent', 'EMI', 'Investments', 'Bills & Utilities', 'Entertainment', 'Education', 'Health', 'Personal Care', 'Gifts & Social', 'Petty Cash', 'Miscellaneous'];
+            let transactions = JSON.parse(localStorage.getItem(dataKey)) || [];
+            const saveTransactions = () => localStorage.setItem(dataKey, JSON.stringify(transactions));
+            const populateCategoryDropdowns = () => { categorySelect.innerHTML = ''; categoryFilter.innerHTML = '<option value="all">All Categories</option>'; DETAILED_CATEGORIES.forEach(c => { let o1 = document.createElement('option'), o2 = document.createElement('option'); o1.value = o2.value = c; o1.textContent = o2.textContent = c; categorySelect.appendChild(o1); categoryFilter.appendChild(o2); }); };
+            const populateMonthFilter = () => { const m = [...new Set(transactions.map(t => t.date.substring(0, 7)))]; monthFilter.innerHTML = '<option value="all">All Months</option>'; m.sort().reverse().forEach(mo => { let o = document.createElement('option'); o.value = o.textContent = mo; monthFilter.appendChild(o); }); };
+            const toggleCategorySelect = () => categorySelect.disabled = typeSelect.value === 'Income';
+            typeSelect.addEventListener('change', toggleCategorySelect);
+            const getBroadCategory = c => { switch(c){ case'Rent':case'EMI':return'Housing & Loans'; case'Investments':return'Investments'; case'Bills & Utilities':return'Bills & Utilities'; case'Food & Groceries':case'Transport':case'Petty Cash':return'Daily Living'; case'Shopping':case'Entertainment':case'Personal Care':case'Gifts & Social':return'Lifestyle'; default:return'Miscellaneous'; } };
+            const showPage = (p) => { pages.forEach(pg => pg.classList.add('hidden')); navLinks.forEach(l => l.classList.remove('active')); document.getElementById(p).classList.remove('hidden'); if (p === 'dashboard-page') navDashboard.classList.add('active'); else if (p === 'transactions-page') navTransactions.classList.add('active'); else if (p === 'about-page') navAbout.classList.add('active'); };
+            entryForm.addEventListener('submit', e => { e.preventDefault(); const cV = typeSelect.value === 'Income' ? 'Income' : categorySelect.value; if (editState.active) { const i = transactions.findIndex(t => t.id === editState.id); if (i !== -1) transactions[i] = { id: editState.id, date: document.getElementById('date').value, description: document.getElementById('description').value, amount: parseFloat(document.getElementById('amount').value), type: typeSelect.value, category: cV }; } else { transactions.push({ id: Date.now(), date: document.getElementById('date').value, description: document.getElementById('description').value, amount: parseFloat(document.getElementById('amount').value), type: typeSelect.value, category: cV }); } resetFormAndState(); updateUI(); });
+            window.editTransaction = id => { const t = transactions.find(t => t.id === id); if (!t) return; document.getElementById('date').value = t.date; document.getElementById('description').value = t.description; document.getElementById('amount').value = t.amount; typeSelect.value = t.type; categorySelect.value = t.category; toggleCategorySelect(); editState = { active: true, id }; submitBtn.textContent = 'Update Transaction'; submitBtn.style.backgroundColor = 'var(--accent-green)'; formTitle.textContent = 'Edit Transaction'; showPage('transactions-page'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+            const resetFormAndState = () => { entryForm.reset(); editState = { active: false, id: null }; submitBtn.textContent = 'Add Transaction'; submitBtn.style.backgroundColor = 'var(--accent-blue)'; formTitle.textContent = 'Add / Edit Transaction'; toggleCategorySelect(); };
+            window.deleteTransaction = id => { if (confirm('Are you sure?')) { transactions = transactions.filter(t => t.id !== id); updateUI(); } };
+            const filterTransactions = () => { let f = [...transactions]; if (searchInput.value) f = f.filter(t => t.description.toLowerCase().includes(searchInput.value.toLowerCase())); if (monthFilter.value !== 'all') f = f.filter(t => t.date.startsWith(monthFilter.value)); if (categoryFilter.value !== 'all') f = f.filter(t => t.category === categoryFilter.value); return f; };
+            const updateUI = () => { const f = filterTransactions(); populateMonthFilter(); updateSummary(f); updateTransactionsTable(f); createOrUpdateCharts(f); saveTransactions(); };
+            const updateSummary = d => { const i = d.filter(t => t.type === 'Income').reduce((s, t) => s + t.amount, 0), e = d.filter(t => t.type === 'Expense').reduce((s, t) => s + t.amount, 0); document.getElementById('total-income').textContent = `₹${i.toFixed(2)}`; document.getElementById('total-expense').textContent = `₹${e.toFixed(2)}`; const n = i - e; document.getElementById('net-savings').textContent = `₹${n.toFixed(2)}`; document.getElementById('net-savings').style.color = n >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'; };
+            const updateTransactionsTable = d => { const b = document.querySelector('#transactions-table tbody'); b.innerHTML = ''; d.sort((a, z) => new Date(z.date) - new Date(a.date)).forEach(t => { const r = `<tr><td>${t.date}</td><td>${t.description}</td><td class="${t.type.toLowerCase()}">${t.type === 'Expense' ? '-' : '+'} ₹${t.amount.toFixed(2)}</td><td>${t.type}</td><td>${t.category}</td><td><button onclick="editTransaction(${t.id})" class="action-btn edit-btn">Edit</button><button onclick="deleteTransaction(${t.id})" class="action-btn delete-btn">Delete</button></td></tr>`; b.insertAdjacentHTML('beforeend', r); }); };
+            const createOrUpdateCharts = d => {
+                const e = d.filter(t => t.type === 'Expense');
+                const cD = e.reduce((a, t) => { const b = getBroadCategory(t.category); a[b] = (a[b] || 0) + t.amount; return a; }, {});
+                const mD = e.reduce((a, t) => { const m = t.date.substring(0, 7); a[m] = (a[m] || 0) + t.amount; return a; }, {});
+                const sM = Object.keys(mD).sort();
+
+                const cX = document.getElementById('category-chart').getContext('2d');
+                if (categoryChart) categoryChart.destroy();
+                const chartColors = ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51', '#8338ec'];
+                categoryChart = new Chart(cX, { type: 'doughnut', data: { labels: Object.keys(cD), datasets: [{ data: Object.values(cD), backgroundColor: chartColors, borderColor: '#fff', borderWidth: 2, offset: 8 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+                const legendContainer = document.getElementById('category-chart-legend'); legendContainer.innerHTML = '';
+                Object.keys(cD).forEach((l, i) => { const li = document.createElement('li'); li.innerHTML = `<span style="background-color:${chartColors[i % chartColors.length]}"></span>${l}`; legendContainer.appendChild(li); });
+                
+                const mX = document.getElementById('monthly-chart').getContext('2d');
+                if (monthlyChart) monthlyChart.destroy();
+                monthlyChart = new Chart(mX, { type: currentMonthlyChartType, data: { labels: sM, datasets: [{ label: 'Total Expense', data: sM.map(m => mD[m]), backgroundColor: currentMonthlyChartType === 'bar' ? '#2a9d8f' : 'transparent', borderColor: '#2a9d8f', borderWidth: 2, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } } });
+            };
+            
+            searchInput.addEventListener('input', updateUI); monthFilter.addEventListener('change', updateUI); categoryFilter.addEventListener('change', updateUI);
+            resetFiltersBtn.addEventListener('click', () => { searchInput.value = ''; monthFilter.value = 'all'; categoryFilter.value = 'all'; updateUI(); });
+            exportBtn.addEventListener('click', () => { const d = filterTransactions(), h = ['ID', 'Date', 'Description', 'Amount', 'Type', 'Category'], r = [h.join(',')]; d.forEach(t => r.push([t.id, t.date, `"${t.description}"`, t.amount, t.type, t.category].join(','))); const c = r.join('\n'), b = new Blob([c], { type: 'text/csv;charset=utf-8;' }); const l = document.createElement('a'), u = URL.createObjectURL(b); l.setAttribute('href', u); l.setAttribute('download', `txns_${new Date().toISOString().slice(0, 10)}.csv`); document.body.appendChild(l); l.click(); document.body.removeChild(l); });
+            
+            navDashboard.addEventListener('click', (e) => { e.preventDefault(); showPage('dashboard-page'); });
+            navTransactions.addEventListener('click', (e) => { e.preventDefault(); showPage('transactions-page'); });
+            navAbout.addEventListener('click', (e) => { e.preventDefault(); showPage('about-page'); });
+
+            monthlyChartBarBtn.addEventListener('click', () => { if (currentMonthlyChartType !== 'bar') { currentMonthlyChartType = 'bar'; monthlyChartBarBtn.classList.add('active'); monthlyChartLineBtn.classList.remove('active'); updateUI(); } });
+            monthlyChartLineBtn.addEventListener('click', () => { if (currentMonthlyChartType !== 'line') { currentMonthlyChartType = 'line'; monthlyChartLineBtn.classList.add('active'); monthlyChartBarBtn.classList.remove('active'); updateUI(); } });
+
+            populateCategoryDropdowns(); toggleCategorySelect(); updateUI(); showPage('dashboard-page');
+        };
+
+        seedInitialData();
+        checkAuth();
+    });
+</script>
+
+</body>
+</html>
